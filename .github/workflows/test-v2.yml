@@ -1,0 +1,26 @@
+name: Test AARC Project Management V2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server.mjs'
+      - 'package.json'
+      - 'public/**'
+      - 'tests/**'
+      - '.github/workflows/test-v2.yml'
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check application source
+        run: npm run check
+      - name: Run backend and document reader tests
+        run: npm test
