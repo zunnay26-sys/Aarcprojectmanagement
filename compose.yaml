@@ -1,0 +1,18 @@
+services:
+  aarc-app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATA_DIR: /data/aarc
+      SETUP_SECRET: ${SETUP_SECRET:?Set SETUP_SECRET before running Docker Compose}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4.1-mini}
+    volumes:
+      - aarc_data:/data/aarc
+volumes:
+  aarc_data:
