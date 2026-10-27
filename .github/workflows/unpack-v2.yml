@@ -1,0 +1,46 @@
+name: Unpack AARC Project Management V2
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/unpack-v2.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract application source from uploaded ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARCHIVE="AARC_Project_Management_Pro_V2_GitHub_Ready 2.zip"
+          if [ ! -f "$ARCHIVE" ]; then
+            ARCHIVE="AARC_Project_Management_Pro_V2_GitHub_Ready.zip"
+          fi
+          test -f "$ARCHIVE"
+          unzip -t "$ARCHIVE"
+          # Do not overwrite GitHub workflows or tracked repository metadata from the archive.
+          unzip -o "$ARCHIVE" -x '.github/*' '.github/**' '.git/*' '.git/**'
+          test -f package.json
+          test -f server.mjs
+          test -f public/index.html
+          test -f tests/server.test.mjs
+      - name: Commit extracted application files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md REVIEW.md .gitignore .dockerignore .env.example Dockerfile compose.yaml package.json server.mjs public tests
+          if ! git diff --cached --quiet; then
+            git commit -m "Unpack AARC Project Management Pro V2 application source"
+            git push origin HEAD:main
+          fi
